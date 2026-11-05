@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เกมทายคำศัพท์ 4 ตัวเลือก ก.พ. & Reading (20 บท)</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ปุ่มสลับโหมด */
+        .mode-selector {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background-color: #2d3748;
+            color: #ffffff;
+        }
+
+        .category-select-container {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .category-select-container label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #718096;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .category-dropdown {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e0;
+            background-color: #ffffff;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #2d3748;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .category-badge {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #3182ce;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* ตัวการ์ดเกมคำถาม 4 ช้อยส์ */
+        .card {
+            background: #ffffff;
+            width: 100%;
+            min-height: 340px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            user-select: none;
+            text-align: center;
+        }
+
+        .emoji-icon {
+            font-size: 36px;
+            margin-bottom: 4px;
+        }
+
+        .word-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .word {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .speaker-btn {
+            background-color: #edf2f7;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .pos {
+            font-size: 11px;
+            color: #a0aec0;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        /* ตารางตัวเลือก 4 ช้อยส์ */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .option-btn {
+            padding: 11px;
+            border: 2px solid #e2e8f0;
+            background-color: #f7f9fc;
+            border-radius: 12px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .option-btn:hover {
+            border-color: #cbd5e0;
+            background-color: #edf2f7;
+        }
+
+        .option-btn.correct {
+            background-color: #00cd69 !important;
+            color: white !important;
+            border-color: #00cd69 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #ff4b4b !important;
+            color: white !important;
+            border-color: #ff4b4b !important;
+        }
+
+        .complete-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .btn-restart {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 16px;
+            background-color: #3182ce;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-restart:hover {
+            background-color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ปุ่มสลับโหมดเกม -->
+        <div class="mode-selector">
+            <button class="mode-btn active" id="btn-mode-vocab" onclick="switchMode('vocab')">🎮 เกม 4 ตัวเลือก (Vocab)</button>
+            <button class="mode-btn" id="btn-mode-verbs" onclick="switchMode('verbs')">⚡ เกมกิริยา 3 ช่อง</button>
+        </div>
+
+        <!-- ตัวเลือกบทเรียน -->
+        <div class="category-select-container" id="vocab-dropdown-box">
+            <label for="category-select">เลือกบทเรียน (บทละ 20 คำ):</label>
+            <select id="category-select" class="category-dropdown" onchange="changeCategory()">
+                <option value="Lesson 1">บทที่ 1: Purchase Order & Delivery</option>
+                <option value="Lesson 2">บทที่ 2: Job Interview Invitation</option>
+                <option value="Lesson 3">บทที่ 3: Meeting Announcement</option>
+                <option value="Lesson 4">บทที่ 4: Bridge Construction Effects</option>
+                <option value="Lesson 5">บทที่ 5: Training Room Reservation</option>
+                <option value="Lesson 6">บทที่ 6: Tourist SIM Quotation</option>
+                <option value="Lesson 7">บทที่ 7: Software Service & Terms</option>
+                <option value="Lesson 8">บทที่ 8: IT Helpdesk & Client Meeting</option>
+                <option value="Lesson 9">บทที่ 9: Software & Equipment Order</option>
+                <option value="Lesson 10">บทที่ 10: Incorrect Product Claim</option>
+                <option value="Lesson 11">บทที่ 11: Office Relocation Notice</option>
+                <option value="Lesson 12">บทที่ 12: Apology & Missing Items</option>
+                <option value="Lesson 13">บทที่ 13: Birthday Greeting Letter</option>
+                <option value="Lesson 14">บทที่ 14: Marketing Job Application</option>
+                <option value="Lesson 15">บทที่ 15: Customer Service Refund Complaint</option>
+                <option value="Lesson 16">บทที่ 16: Business Negotiation & Deals</option>
+                <option value="Lesson 17">บทที่ 17: Performance Evaluation & Report</option>
+                <option value="Lesson 18">บทที่ 18: Company Policy & Compliance</option>
+                <option value="Lesson 19">บทที่ 19: Human Resources & Recruitment</option>
+                <option value="Lesson 20">บทที่ 20: Final Review & Strategy</option>
+            </select>
+        </div>
+
+        <!-- พื้นที่เกมหลัก -->
+        <div id="learning-section" style="width: 100%;">
+            <div class="header">
+                <div class="category-badge" id="card-category">Lesson 1</div>
+                <div id="counter" style="font-size: 13px; color: #a0aec0; font-weight: 700;">1 / 20</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="card" id="flashcard">
+                <div id="card-content-area" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                    <!-- เนื้อหาคำถามและช้อยส์จะถูกเรนเดอร์ตรงนี้ -->
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าจอจบเกม -->
+        <div class="complete-screen" id="complete-section">
+            <div class="emoji-icon" style="font-size: 60px; margin-bottom: 15px;">🎉</div>
+            <h2 style="font-size: 24px; color: #2d3748; margin-bottom: 10px;">เล่นเกมจบรอบแล้วครับ!</h2>
+            <p style="color: #718096; margin-bottom: 20px;" id="complete-text">คุณทำคะแนนได้ยอดเยี่ยมมาก</p>
+            <button class="btn-restart" onclick="restartSession()">เล่นรอบนี้ใหม่อีกครั้ง</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'vocab';
+
+        // ฐานข้อมูลคำศัพท์ครบทั้ง 20 บท (บทละ 20 คำ รวม 400 คำ)
+        const allLessonsData = {
+            "Lesson 1": [
+                { word: "Enclose", pos: "Verb", translation: "แนบมาด้วย", emoji: "📎" },
+                { word: "Supply", pos: "Noun", translation: "สิ่งของที่จัดหา, เสบียง", emoji: "📦" },
+                { word: "Delivery", pos: "Noun", translation: "การจัดส่ง", emoji: "🚚" },
+                { word: "Appreciate", pos: "Verb", translation: "รู้สึกขอบคุณ", emoji: "🙏" },
+                { word: "Hesitate", pos: "Verb", translation: "ลังเล, รีรอ", emoji: "🤔" },
+                { word: "Invoice", pos: "Noun", translation: "ใบแจ้งหนี้", emoji: "🧾" },
+                { word: "Supervisor", pos: "Noun", translation: "หัวหน้างาน", emoji: "👨‍💼" },
+                { word: "Discount", pos: "Noun", translation: "ส่วนลด", emoji: "🏷️" },
+                { word: "Purchase", pos: "Verb", translation: "ซื้อ, จัดซื้อ", emoji: "🛒" },
+                { word: "Receive", pos: "Verb", translation: "ได้รับ", emoji: "📥" },
+                { word: "Fabric", pos: "Noun", translation: "ผ้า", emoji: "🧶" },
+                { word: "Cotton", pos: "Noun", translation: "ผ้าฝ้าย", emoji: "👕" },
+                { word: "Cheque", pos: "Noun", translation: "เช็คเงินสด", emoji: "💳" },
+                { word: "Following", pos: "Adjective", translation: "ต่อไปนี้", emoji: "📌" },
+                { word: "Later", pos: "Adverb", translation: "ภายหลัง, ไม่เกิน", emoji: "⏳" },
+                { word: "Middle", pos: "Noun", translation: "ตรงกลาง", emoji: "📅" },
+                { word: "Address", pos: "Noun", translation: "ที่อยู่", emoji: "🏠" },
+                { word: "Attached", pos: "Adjective", translation: "ที่แนบมา", emoji: "📎" },
+                { word: "Concern", pos: "Verb", translation: "เกี่ยวกับ, กังวล", emoji: "❓" },
+                { word: "Contact", pos: "Verb", translation: "ติดต่อ", emoji: "📞" }
+            ],
+            "Lesson 2": [
+                { word: "Application", pos: "Noun", translation: "ใบสมัคร", emoji: "📄" },
+                { word: "Review", pos: "Verb", translation: "พิจารณา, ตรวจสอบ", emoji: "🔍" },
+                { word: "Interview", pos: "Noun", translation: "การสัมภาษณ์งาน", emoji: "🤝" },
+                { word: "Schedule", pos: "Verb", translation: "กำหนดเวลา, นัดหมาย", emoji: "📅" },
+                { word: "Reschedule", pos: "Verb", translation: "เลื่อนนัด, เปลี่ยนเวลา", emoji: "🔄" },
+                { word: "Position", pos: "Noun", translation: "ตำแหน่ง", emoji: "📌" },
+                { word: "Secretary", pos: "Noun", translation: "เลขานุการ", emoji: "👩‍💻" },
+                { word: "Manager", pos: "Noun", translation: "ผู้จัดการ", emoji: "👨‍💼" },
+                { word: "Department", pos: "Noun", translation: "แผนก, ฝ่าย", emoji: "🏢" },
+                { word: "Convenient", pos: "Adjective", translation: "สะดวก", emoji: "⭐" },
+                { word: "Directly", pos: "Adverb", translation: "โดยตรง", emoji: "🎯" },
+                { word: "Extension", pos: "Noun", translation: "เบอร์ต่อภายใน", emoji: "☎️" },
+                { word: "Arrive", pos: "Verb", translation: "มาถึง", emoji: "🚪" },
+                { word: "Floor", pos: "Noun", translation: "ชั้น (ของตึก)", emoji: "🏢" },
+                { word: "Forward", pos: "Verb", translation: "ตั้งตารอ", emoji: "✨" },
+                { word: "Receive", pos: "Verb", translation: "ได้รับ", emoji: "📥" },
+                { word: "Invite", pos: "Verb", translation: "เชิญ", emoji: "💌" },
+                { word: "Human", pos: "Noun", translation: "มนุษย์, ทรัพยากรบุคคล", emoji: "👥" },
+                { word: "Resource", pos: "Noun", translation: "ทรัพยากร", emoji: "💡" },
+                { word: "Direct", pos: "Adjective", translation: "โดยตรง", emoji: "➡️" }
+            ],
+            "Lesson 3": [
+                { word: "Inform", pos: "Verb", translation: "แจ้งให้ทราบ", emoji: "📢" },
+                { word: "Attend", pos: "Verb", translation: "เข้าร่วม", emoji: "👥" },
+                { word: "Discuss", pos: "Verb", translation: "หารือ, อภิปราย", emoji: "💬" },
+                { word: "Promotion", pos: "Noun", translation: "โปรโมชั่น, การส่งเสริมการขาย", emoji: "🏷️" },
+                { word: "Packaging", pos: "Noun", translation: "หีบห่อ, บรรจุภัณฑ์", emoji: "🎁" },
+                { word: "Executive", pos: "Noun", translation: "ผู้บริหาร, เจ้าหน้าที่บริหาร", emoji: "👔" },
+                { word: "General", pos: "Adjective", translation: "ทั่วไป", emoji: "🌐" },
+                { word: "Subject", pos: "Noun", translation: "หัวเรื่อง, วิชา", emoji: "📝" },
+                { word: "Hold", pos: "Verb", translation: "จัดขึ้น, ถือ", emoji: "🗓️" },
+                { word: "Relate", pos: "Verb", translation: "เกี่ยวข้อง", emoji: "🔗" },
+                { word: "Current", pos: "Adjective", translation: "ปัจจุบัน", emoji: "⚡" },
+                { word: "Grand", pos: "Adjective", translation: "ยิ่งใหญ่, ใหญ่", emoji: "🎉" },
+                { word: "Event", pos: "Noun", translation: "งาน, เหตุการณ์", emoji: "🎈" },
+                { word: "Arrange", pos: "Verb", translation: "จัดเตรียม, จัดการ", emoji: "📋" },
+                { word: "Purpose", pos: "Noun", translation: "จุดประสงค์", emoji: "🎯" },
+                { word: "Customer", pos: "Noun", translation: "ลูกค้า", emoji: "🛒" },
+                { word: "Service", pos: "Noun", translation: "บริการ", emoji: "🛠️" },
+                { word: "Building", pos: "Noun", translation: "อาคาร, ตึก", emoji: "🏢" },
+                { word: "Change", pos: "Verb", translation: "เปลี่ยนแปลง", emoji: "🔄" },
+                { word: "Quickly", pos: "Adverb", translation: "อย่างรวดเร็ว", emoji: "⚡" }
+            ],
+            "Lesson 4": [
+                { word: "Effect", pos: "Noun", translation: "ผลกระทบ", emoji: "🌊" },
+                { word: "Concerned", pos: "Adjective", translation: "กังวลใจ, เกี่ยวข้อง", emoji: "😟" },
+                { word: "Construction", pos: "Noun", translation: "การก่อสร้าง", emoji: "🏗️" },
+                { word: "Solution", pos: "Noun", translation: "แนวทางแก้ไขปัญหา", emoji: "💡" },
+                { word: "Ecology", pos: "Noun", translation: "ระบบนิเวศ", emoji: "🌱" },
+                { word: "Project", pos: "Noun", translation: "โครงการ", emoji: "📊" },
+                { word: "Bridge", pos: "Noun", translation: "สะพาน", emoji: "🌉" },
+                { word: "Village", pos: "Noun", translation: "หมู่บ้าน", emoji: "🏘️" },
+                { word: "President", pos: "Noun", translation: "ประธาน", emoji: "👑" },
+                { word: "Agree", pos: "Verb", translation: "เห็นด้วย", emoji: "🤝" },
+                { word: "Structure", pos: "Noun", translation: "โครงสร้าง", emoji: "🏛️" },
+                { word: "Thorough", pos: "Adjective", translation: "ละเอียดถี่ถ้วน", emoji: "🔍" },
+                { word: "Research", pos: "Noun", translation: "การวิจัย", emoji: "📑" },
+                { word: "Suitable", pos: "Adjective", translation: "เหมาะสม", emoji: "⭐" },
+                { word: "Situation", pos: "Noun", translation: "สถานการณ์", emoji: "📊" },
+                { word: "Engineer", pos: "Noun", translation: "วิศวกร", emoji: "👷‍♂️" },
+                { word: "Researcher", pos: "Noun", translation: "นักวิจัย", emoji: "🔬" },
+                { word: "Afraid", pos: "Adjective", translation: "เกรงว่า, กลัว", emoji: "😨" },
+                { word: "Tremendous", pos: "Adjective", translation: "มหาศาล, ใหญ่หลวง", emoji: "💥" },
+                { word: "Pronoun", pos: "Noun", translation: "สรรพนาม", emoji: "🔤" }
+            ],
+            "Lesson 5": [
+                { word: "Training", pos: "Noun", translation: "การฝึกอบรม", emoji: "👨‍🏫" },
+                { word: "Reserve", pos: "Verb", translation: "จอง", emoji: "🏨" },
+                { word: "Facility", pos: "Noun", translation: "สิ่งอำนวยความสะดวก", emoji: "🏢" },
+                { word: "Request", pos: "Verb", translation: "ความต้องการ, ร้องขอ", emoji: "📝" },
+                { word: "Provide", pos: "Verb", translation: "จัดเตรียม, ให้บริการ", emoji: "🛠️" },
+                { word: "Participant", pos: "Noun", translation: "ผู้เข้าร่วม", emoji: "👥" },
+                { word: "Medium", pos: "Adjective", translation: "ขนาดกลาง", emoji: "📐" },
+                { word: "Round", pos: "Adjective", translation: "กลม", emoji: "⭕" },
+                { word: "Square", pos: "Adjective", translation: "สี่เหลี่ยมจัตุรัส", emoji: "⏹️" },
+                { word: "Microphone", pos: "Noun", translation: "ไมโครโฟน", emoji: "🎤" },
+                { word: "Speaker", pos: "Noun", translation: "ลำโพง, ผู้พูด", emoji: "🔊" },
+                { word: "Computer", pos: "Noun", translation: "คอมพิวเตอร์", emoji: "💻" },
+                { word: "Opportunity", pos: "Noun", translation: "โอกาส", emoji: "🌟" },
+                { word: "Confirm", pos: "Verb", translation: "ยืนยัน", emoji: "✔️" },
+                { word: "Arrangement", pos: "Noun", translation: "การจัดเตรียม", emoji: "📋" },
+                { word: "Sale", pos: "Noun", translation: "การขาย", emoji: "💰" },
+                { word: "Horeshoe", pos: "Noun", translation: "เกือกม้า", emoji: "🐎" },
+                { word: "Interested", pos: "Adjective", translation: "สนใจ", emoji: "✨" },
+                { word: "Laptop", pos: "Noun", translation: "คอมพิวเตอร์พกพา", emoji: "💻" },
+                { word: "Trainee", pos: "Noun", translation: "ผู้เข้ารับการอบรม", emoji: "🎓" }
+            ],
+            "Lesson 6": [
+                { word: "Quotation", pos: "Noun", translation: "ใบเสนอราคา", emoji: "📑" },
+                { word: "Prepaid", pos: "Adjective", translation: "เติมเงิน", emoji: "💳" },
+                { word: "Minimum", pos: "Adjective", translation: "ขั้นต่ำ", emoji: "📉" },
+                { word: "Quantity", pos: "Noun", translation: "ปริมาณ, จำนวน", emoji: "📊" },
+                { word: "Package", pos: "Noun", translation: "แพ็คเกจ, ชุดบริการ", emoji: "📦" },
+                { word: "Bonus", pos: "Noun", translation: "โบนัส, ของแถม", emoji: "⭐" },
+                { word: "Include", pos: "Verb", translation: "รวมถึง", emoji: "➕" },
+                { word: "Maximum", pos: "Adjective", translation: "สูงสุด", emoji: "🚀" },
+                { word: "Speed", pos: "Noun", translation: "ความเร็ว", emoji: "⚡" },
+                { word: "Extra", pos: "Adjective", translation: "พิเศษ, ส่วนเพิ่ม", emoji: "💎" },
+                { word: "Fee", pos: "Noun", translation: "ค่าธรรมเนียม, ค่าบริการ", emoji: "💰" },
+                { word: "Local", pos: "Adjective", translation: "ภายในประเทศ", emoji: "🏠" },
+                { word: "Charge", pos: "Verb", translation: "คิดค่าบริการ", emoji: "💳" },
+                { word: "International", pos: "Adjective", translation: "ระหว่างประเทศ", emoji: "🌐" },
+                { word: "Further", pos: "Adjective", translation: "เพิ่มเติม", emoji: "❓" },
+                { word: "Assist", pos: "Verb", translation: "ช่วยเหลือ", emoji: "🤝" },
+                { word: "Term", pos: "Noun", translation: "เงื่อนไข, ข้อกำหนด", emoji: "📜" },
+                { word: "Condition", pos: "Noun", translation: "เงื่อนไข", emoji: "📝" },
+                { word: "Tourist", pos: "Noun", translation: "นักท่องเที่ยว", emoji: "🧳" },
+                { word: "Minute", pos: "Noun", translation: "นาที", emoji: "⏱️" }
+            ],
+            "Lesson 7": [
+                { word: "Software", pos: "Noun", translation: "ซอฟต์แวร์, โปรแกรม", emoji: "💻" },
+                { word: "Please", pos: "Verb", translation: "ยินดี, โปรด", emoji: "😊" },
+                { word: "Suspend", pos: "Verb", translation: "ระงับชั่วคราว", emoji: "⏸️" },
+                { word: "Prior", pos: "Adjective", translation: "ก่อน", emoji: "⏳" },
+                { word: "Notice", pos: "Noun", translation: "ประกาศ, การแจ้งเตือน", emoji: "📢" },
+                { word: "Terminate", pos: "Verb", translation: "ยกเลิก, ยุติ", emoji: "❌" },
+                { word: "Agreement", pos: "Noun", translation: "ข้อตกลง, สัญญา", emoji: "🤝" },
+                { word: "Prove", pos: "Verb", translation: "พิสูจน์", emoji: "🔍" },
+                { word: "Against", pos: "Preposition", translation: "ขัดต่อ, ต่อต้าน", emoji: "⚖️" },
+                { word: "Law", pos: "Noun", translation: "กฎหมาย", emoji: "📜" },
+                { word: "Breach", pos: "Verb", translation: "ฝ่าฝืน, ผิดสัญญา", emoji: "⚠️" },
+                { word: "Staff", pos: "Noun", translation: "พนักงาน, เจ้าหน้าที่", emoji: "👥" },
+                { word: "Regard", pos: "Verb", translation: "ความนับถือ, เกี่ยวกับ", emoji: "✨" },
+                { word: "Refer", pos: "Verb", translation: "อ้างถึง", emoji: "📌" },
+                { word: "Addition", pos: "Noun", translation: "เพิ่มเติม", emoji: "➕" },
+                { word: "Temporary", pos: "Adjective", translation: "ชั่วคราว", emoji: "⏱️" },
+                { word: "Offense", pos: "Noun", translation: "การกระทำผิด", emoji: "🚨" },
+                { word: "Center", pos: "Noun", translation: "ศูนย์กลาง", emoji: "🏛️" },
+                { word: "Market", pos: "Noun", translation: "ตลาด, การตลาด", emoji: "📈" },
+                { word: "Company", pos: "Noun", translation: "บริษัท", emoji: "🏢" }
+            ],
+            "Lesson 8": [
+                { word: "Client", pos: "Noun", translation: "ลูกค้า", emoji: "🤝" },
+                { word: "Supervisor", pos: "Noun", translation: "หัวหน้างาน, ผู้ควบคุม", emoji: "👨‍💼" },
+                { word: "Negotiate", pos: "Verb", translation: "เจรจาต่อรอง", emoji: "💬" },
+                { word: "Current", pos: "Adjective", translation: "ปัจจุบัน", emoji: "⚡" },
+                { word: "Password", pos: "Noun", translation: "รหัสผ่าน", emoji: "🔑" },
+                { word: "Helpdesk", pos: "Noun", translation: "แผนกช่วยเหลือผู้ใช้งาน", emoji: "🛠️" },
+                { word: "Join", pos: "Verb", translation: "เข้าร่วม", emoji: "➕" },
+                { word: "Few", pos: "Adjective", translation: "เล็กน้อย, ไม่กี่", emoji: "📌" },
+                { word: "Passcode", pos: "Noun", translation: "รหัสผ่าน", emoji: "🔒" },
+                { word: "Department", pos: "Noun", translation: "แผนก", emoji: "🏢" },
+                { word: "Room", pos: "Noun", translation: "ห้อง", emoji: "🚪" },
+                { word: "Solution", pos: "Noun", translation: "การแก้ไขปัญหา", emoji: "💡" },
+                { word: "User", pos: "Noun", translation: "ผู้ใช้งาน", emoji: "👤" },
+                { word: "Secretary", pos: "Noun", translation: "เลขานุการ", emoji: "👩‍💻" },
+                { word: "Later", pos: "Adverb", translation: "ภายหลัง", emoji: "⏳" },
+                { word: "General", pos: "Adjective", translation: "ทั่วไป", emoji: "🌐" },
+                { word: "Action", pos: "Noun", translation: "การกระทำ, การดำเนินการ", emoji: "⚙️" },
+                { word: "Plan", pos: "Noun", translation: "แผนงาน", emoji: "📊" },
+                { word: "Goal", pos: "Noun", translation: "เป้าหมาย", emoji: "🎯" },
+                { word: "Result", pos: "Noun", translation: "ผลลัพธ์", emoji: "📈" }
+            ],
+            "Lesson 9": [
+                { word: "Maintenance", pos: "Noun", translation: "การบำรุงรักษา", emoji: "🔧" },
+                { word: "Financial", pos: "Adjective", translation: "ทางการเงิน", emoji: "💰" },
+                { word: "Management", pos: "Noun", translation: "การจัดการ", emoji: "📊" },
+                { word: "Printer", pos: "Noun", translation: "เครื่องพิมพ์", emoji: "🖨️" },
+                { word: "Monitor", pos: "Noun", translation: "จอภาพ", emoji: "🖥️" },
+                { word: "Widescreen", pos: "Adjective", translation: "จอภาพกว้าง", emoji: "📺" },
+                { word: "Inch", pos: "Noun", translation: "นิ้ว (หน่วยวัด)", emoji: "📏" },
+                { word: "Laser", pos: "Noun", translation: "เลเซอร์", emoji: "⚡" },
+                { word: "Consider", pos: "Verb", translation: "พิจารณา", emoji: "🤔" },
+                { word: "Credit", pos: "Noun", translation: "เครดิต", emoji: "💳" },
+                { word: "Card", pos: "Noun", translation: "บัตร", emoji: "💳" },
+                { word: "Anyway", pos: "Adverb", translation: "อย่างไรก็ตาม", emoji: "🔄" },
+                { word: "Head", pos: "Noun", translation: "หัว, ส่วนหัว", emoji: "📌" },
+                { word: "Require", pos: "Verb", translation: "ต้องการ, เรียกร้อง", emoji: "❓" },
+                { word: "Software", pos: "Noun", translation: "ซอฟต์แวร์", emoji: "💻" },
+                { word: "Yearly", pos: "Adjective", translation: "ประจำปี", emoji: "📅" },
+                { word: "Box", pos: "Noun", translation: "กล่อง", emoji: "📦" },
+                { word: "Percent", pos: "Noun", translation: "เปอร์เซ็นต์", emoji: "🏷️" },
+                { word: "Manager", pos: "Noun", translation: "ผู้จัดการ", emoji: "👨‍💼" },
+                { word: "Order", pos: "Noun", translation: "คำสั่งซื้อ", emoji: "🛒" }
+            ],
+            "Lesson 10": [
+                { word: "Incorrect", pos: "Adjective", translation: "ไม่ถูกต้อง, ผิด", emoji: "❌" },
+                { word: "Claim", pos: "Noun", translation: "การเรียกร้อง, การทวงสิทธิ์", emoji: "📋" },
+                { word: "Invoice", pos: "Noun", translation: "ใบแจ้งหนี้", emoji: "🧾" },
+                { word: "Return", pos: "Verb", translation: "คืนสินค้า", emoji: "↩️" },
+                { word: "Problem", pos: "Noun", translation: "ปัญหา", emoji: "⚠️" },
+                { word: "Screen", pos: "Noun", translation: "หน้าจอ", emoji: "🖥️" },
+                { word: "Working", pos: "Adjective", translation: "วันทำงาน", emoji: "⏳" },
+                { word: "Correct", pos: "Verb", translation: "แก้ไขให้ถูกต้อง", emoji: "✔️" },
+                { word: "International", pos: "Adjective", translation: "ระหว่างประเทศ", emoji: "🌐" },
+                { word: "Recent", pos: "Adjective", translation: "เร็วๆ นี้, ล่าสุด", emoji: "📅" },
+                { word: "Merchant", pos: "Noun", translation: "ผู้ค้า, พ่อค้า", emoji: "🛍️" },
+                { word: "Dealer", pos: "Noun", translation: "ตัวแทนจำหน่าย", emoji: "🤝" },
+                { word: "Vendor", pos: "Noun", translation: "ผู้ขาย", emoji: "📦" },
+                { word: "Deliver", pos: "Verb", translation: "จัดส่ง", emoji: "🚚" },
+                { word: "Ship", pos: "Verb", translation: "ขนส่ง, ส่งสินค้า", emoji: "🚢" },
+                { word: "Check", pos: "Verb", translation: "ตรวจสอบ", emoji: "🔍" },
+                { word: "Right", pos: "Adjective", translation: "ถูกต้อง, สิทธิ์", emoji: "⭐" },
+                { word: "Email", pos: "Noun", translation: "อีเมล", emoji: "📧" },
+                { word: "Date", pos: "Noun", translation: "วันที่", emoji: "📅" },
+                { word: "Customer", pos: "Noun", translation: "ลูกค้า", emoji: "🛒" }
+            ],
+            "Lesson 11": [
+                { word: "Relocation", pos: "Noun", translation: "การย้ายที่ตั้ง", emoji: "📦" },
+                { word: "Manage", pos: "Verb", translation: "จัดการ, ควบคุม", emoji: "📊" },
+                { word: "Introduce", pos: "Verb", translation: "แนะนำตัว", emoji: "👋" },
+                { word: "Division", pos: "Noun", translation: "แผนก, ส่วนงาน", emoji: "🏢" },
+                { word: "Shortly", pos: "Adverb", translation: "ในไม่ช้า, เร็วๆ นี้", emoji: "⏳" },
+                { word: "Previous", pos: "Adjective", translation: "ก่อนหน้านี้", emoji: "⏪" },
+                { word: "Handle", pos: "Verb", translation: "ดำเนินการ, จัดการ", emoji: "⚙️" },
+                { word: "Address", pos: "Noun", translation: "ที่อยู่", emoji: "🏠" },
+                { word: "Website", pos: "Noun", translation: "เว็บไซต์", emoji: "💻" },
+                { word: "Building", pos: "Noun", translation: "อาคาร", emoji: "🏢" },
+                { word: "Floor", pos: "Noun", translation: "ชั้น", emoji: "🏢" },
+                { word: "Answer", pos: "Verb", translation: "ตอบคำถาม", emoji: "💬" },
+                { word: "Forward", pos: "Verb", translation: "ตั้งตารอ", emoji: "✨" },
+                { word: "Account", pos: "Noun", translation: "บัญชี", emoji: "📈" },
+                { word: "Office", pos: "Noun", translation: "สำนักงาน", emoji: "🏛️" },
+                { word: "Customer", pos: "Noun", translation: "ลูกค้า", emoji: "🛒" },
+                { word: "Contact", pos: "Verb", translation: "ติดต่อ", emoji: "📞" },
+                { word: "Staff", pos: "Noun", translation: "พนักงาน", emoji: "👥" },
+                { word: "Target", pos: "Noun", translation: "เป้าหมาย", emoji: "🎯" },
+                { word: "Goal", pos: "Noun", translation: "เป้าหมายหลัก", emoji: "⭐" }
+            ],
+            "Lesson 12": [
+                { word: "Apologize", pos: "Verb", translation: "ขอโทษ", emoji: "🙇‍♂️" },
+                { word: "Missing", pos: "Adjective", translation: "สูญหาย, ที่ขาดหายไป", emoji: "🔍" },
+                { word: "Shipment", pos: "Noun", translation: "การขนส่งสินค้า", emoji: "🚢" },
+                { word: "Mistake", pos: "Noun", translation: "ความผิดพลาด", emoji: "⚠️" },
+                { word: "Projector", pos: "Noun", translation: "เครื่องฉายภาพโปรเจคเตอร์", emoji: "📽️" },
+                { word: "Manual", pos: "Noun", translation: "คู่มือ", emoji: "📖" },
+                { word: "Separate", pos: "Adjective", translation: "แยกจากกัน", emoji: "📦" },
+                { word: "Coupon", pos: "Noun", translation: "คูปอง", emoji: "🎫" },
+                { word: "Regret", pos: "Verb", translation: "เสียใจ", emoji: "😔" },
+                { word: "Inconvenience", pos: "Noun", translation: "ความไม่สะดวก", emoji: "⚠️" },
+                { word: "Customer", pos: "Noun", translation: "ลูกค้า", emoji: "🛒" },
+                { word: "Service", pos: "Noun", translation: "บริการ", emoji: "🛠️" },
+                { word: "Send", pos: "Verb", translation: "ส่ง", emoji: "📤" },
+                { word: "Check", pos: "Verb", translation: "ตรวจสอบ", emoji: "✔️" },
+                { word: "Attach", pos: "Verb", translation: "แนบ", emoji: "📎" },
+                { word: "File", pos: "Noun", translation: "ไฟล์, เอกสาร", emoji: "📄" },
+                { word: "Discount", pos: "Noun", translation: "ส่วนลด", emoji: "🏷️" },
+                { word: "Purchase", pos: "Noun", translation: "การซื้อ", emoji: "🛍️" },
+                { word: "Serve", pos: "Verb", translation: "ให้บริการ", emoji: "🌟" },
+                { word: "Letter", pos: "Noun", translation: "จดหมาย", emoji: "✉️" }
+            ],
+            "Lesson 13": [
+                { word: "Fantastic", pos: "Adjective", translation: "ยอดเยี่ยม, วิเศษ", emoji: "✨" },
+                { word: "Grateful", pos: "Adjective", translation: "รู้สึกขอบคุณ", emoji: "🥰" },
+                { word: "Cherish", pos: "Verb", translation: "หวงแหน, เก็บรักษาไว้ในความทรงจำ", emoji: "💖" },
+                { word: "Positivity", pos: "Noun", translation: "แง่บวก, ความคิดบวก", emoji: "☀️" },
+                { word: "Laughter", pos: "Noun", translation: "เสียงหัวเราะ", emoji: "😂" },
+                { word: "Adventure", pos: "Noun", translation: "การผจญภัย", emoji: "🗺️" },
+                { word: "Fullest", pos: "Adjective", translation: "อย่างเต็มที่", emoji: "🎉" },
+                { word: "Appreciate", pos: "Verb", translation: "ซาบซึ้ง, เห็นคุณค่า", emoji: "🌟" },
+                { word: "Birthday", pos: "Noun", translation: "วันเกิด", emoji: "🎂" },
+                { word: "Celebrate", pos: "Verb", translation: "เฉลิมฉลอง", emoji: "🍾" },
+                { word: "Quality", pos: "Noun", translation: "คุณสมบัติ, คุณภาพ", emoji: "💎" },
+                { word: "Wonderful", pos: "Adjective", translation: "ยอดเยี่ยม, วิเศษ", emoji: "🌸" },
+                { word: "Success", pos: "Noun", translation: "ความสำเร็จ", emoji: "🏆" },
+                { word: "Memory", pos: "Noun", translation: "ความทรงจำ", emoji: "📸" },
+                { word: "True", pos: "Adjective", translation: "แท้จริง", emoji: "🤝" },
+                { word: "Special", pos: "Adjective", translation: "พิเศษ", emoji: "⭐" },
+                { word: "Love", pos: "Noun", translation: "ความรัก", emoji: "❤️" },
+                { word: "Joy", pos: "Noun", translation: "ความสุข, ความยินดี", emoji: "🎈" },
+                { word: "Wish", pos: "Noun", translation: "ความปรารถนา", emoji: "🎁" },
+                { word: "Friend", pos: "Noun", translation: "เพื่อน", emoji: "👫" }
+            ],
+            "Lesson 14": [
+                { word: "Candidate", pos: "Noun", translation: "ผู้สมัครงาน", emoji: "👤" },
+                { word: "Enthusiastic", pos: "Adjective", translation: "กระตือรือร้น", emoji: "🔥" },
+                { word: "Align", pos: "Verb", translation: "สอดคล้องกับ", emoji: "⚖️" },
+                { word: "Eager", pos: "Adjective", translation: "กระตือรือร้น, ใจจดใจจ่อ", emoji: "🚀" },
+                { word: "Professional", pos: "Adjective", translation: "อย่างมืออาชีพ", emoji: "👔" },
+                { word: "Confident", pos: "Adjective", translation: "มั่นใจ", emoji: "💪" },
+                { word: "Effective", pos: "Adjective", translation: "มีประสิทธิภาพ", emoji: "⚡" },
+                { word: "Campaign", pos: "Noun", translation: "แคมเปญ, การรณรงค์", emoji: "📈" },
+                { word: "Contribute", pos: "Verb", translation: "มีส่วนร่วม", emoji: "🤝" },
+                { word: "Creative", pos: "Adjective", translation: "มีความคิดสร้างสรรค์", emoji: "🎨" },
+                { word: "Communication", pos: "Noun", translation: "การสื่อสาร", emoji: "🗣️" },
+                { word: "Passion", pos: "Noun", translation: "ความหลงใหล", emoji: "❤️" },
+                { word: "Willingness", pos: "Noun", translation: "ความเต็มใจ", emoji: "🌱" },
+                { word: "Prospect", pos: "Noun", translation: "ความเป็นไปได้, โอกาส", emoji: "🔭" },
+                { word: "Showcase", pos: "Verb", translation: "จัดแสดง, แสดงให้เห็น", emoji: "✨" },
+                { word: "Marketing", pos: "Noun", translation: "การตลาด", emoji: "📊" },
+                { word: "Website", pos: "Noun", translation: "เว็บไซต์", emoji: "💻" },
+                { word: "Hiring", pos: "Noun", translation: "การจ้างงาน, การสรรหา", emoji: "👥" },
+                { word: "Ability", pos: "Noun", translation: "ความสามารถ", emoji: "⭐" },
+                { word: "Experience", pos: "Noun", translation: "ประสบการณ์", emoji: "📚" }
+            ],
+            "Lesson 15": [
+                { word: "Dissatisfaction", pos: "Noun", translation: "ความไม่พอใจ", emoji: "😒" },
+                { word: "Refund", pos: "Noun", translation: "การคืนเงิน, คืนเงิน", emoji: "💸" },
+                { word: "Resolve", pos: "Verb", translation: "แก้ไขปัญหา", emoji: "🛠️" },
+                { word: "Expectation", pos: "Noun", translation: "ความคาดหวัง", emoji: "📉" },
+                { word: "Promptly", pos: "Adverb", translation: "อย่างทันที, โดยด่วน", emoji: "⚡" },
+                { word: "Complaint", pos: "Noun", translation: "คำร้องเรียน, การร้องเรียน", emoji: "📋" },
+                { word: "Value", pos: "Noun", translation: "คุณค่า, ความคุ้มค่า", emoji: "💎" },
+                { word: "Process", pos: "Verb", translation: "ดำเนินการ", emoji: "⚙️" },
+                { word: "Quality", pos: "Noun", translation: "คุณภาพ", emoji: "⭐" },
+                { word: "Advertise", pos: "Verb", translation: "โฆษณา", emoji: "📺" },
+                { word: "Promise", pos: "Verb", translation: "สัญญา", emoji: "🤝" },
+                { word: "Store", pos: "Noun", translation: "ร้านค้า", emoji: "🏬" },
+                { word: "Shampoo", pos: "Noun", translation: "แชมพู", emoji: "🧴" },
+                { word: "Unfortunately", pos: "Adverb", translation: "อย่างน่าเสียดาย", emoji: "⚠️" },
+                { word: "Matter", pos: "Noun", translation: "เรื่อง, ปัญหา", emoji: "📌" },
+                { word: "Attention", pos: "Noun", translation: "ความสนใจ, การใส่ใจ", emoji: "👀" },
+                { word: "Customer", pos: "Noun", translation: "ลูกค้า", emoji: "🛒" },
+                { word: "Service", pos: "Noun", translation: "บริการ", emoji: "🛠️" },
+                { word: "Purchase", pos: "Noun", translation: "การซื้อ", emoji: "🛍️" },
+                { word: "Recently", pos: "Adverb", translation: "เมื่อเร็วๆ นี้", emoji: "⏳" }
+            ],
+            "Lesson 16": [
+                { word: "Negotiation", pos: "Noun", translation: "การเจรจาต่อรอง", emoji: "🤝" },
+                { word: "Strategy", pos: "Noun", translation: "กลยุทธ์", emoji: "🎯" },
+                { word: "Contract", pos: "Noun", translation: "สัญญา", emoji: "📜" },
+                { word: "Terms", pos: "Noun", translation: "ข้อกำหนดและเงื่อนไข", emoji: "📝" },
+                { word: "Compromise", pos: "Verb", translation: "ประนีประนอม", emoji: "⚖️" },
+                { word: "Proposal", pos: "Noun", translation: "ข้อเสนอ", emoji: "📊" },
+                { word: "Counterpart", pos: "Noun", translation: "ฝ่ายตรงข้าม, คู่เจรจา", emoji: "👥" },
+                { word: "Agreement", pos: "Noun", translation: "ข้อตกลง", emoji: "✔️" },
+                { word: "Deadline", pos: "Noun", translation: "กำหนดส่ง", emoji: "⏳" },
+                { word: "Advantage", pos: "Noun", translation: "ข้อได้เปรียบ", emoji: "⭐" },
+                { word: "Condition", pos: "Noun", translation: "เงื่อนไข", emoji: "📌" },
+                { word: "Dispute", pos: "Noun", translation: "ข้อพิพาท, ความขัดแย้ง", emoji: "⚠️" },
+                { word: "Settle", pos: "Verb", translation: "ตกลง, ยุติ", emoji: "✨" },
+                { word: "Objective", pos: "Noun", translation: "เป้าหมาย, วัตถุประสงค์", emoji: "🎯" },
+                { word: "Participant", pos: "Noun", translation: "ผู้เข้าร่วม", emoji: "🧑‍💻" },
+                { word: "Outcome", pos: "Noun", translation: "ผลลัพธ์", emoji: "📈" },
+                { word: "Prepare", pos: "Verb", translation: "เตรียมตัว", emoji: "📚" },
+                { word: "Confident", pos: "Adjective", translation: "มั่นใจ", emoji: "💪" },
+                { word: "Successful", pos: "Adjective", translation: "ประสบความสำเร็จ", emoji: "🏆" },
+                { word: "Value", pos: "Noun", translation: "มูลค่า, คุณค่า", emoji: "💎" }
+            ],
+            "Lesson 17": [
+                { word: "Performance", pos: "Noun", translation: "ผลการปฏิบัติงาน", emoji: "📈" },
+                { word: "Evaluation", pos: "Noun", translation: "การประเมินผล", emoji: "📊" },
+                { word: "Report", pos: "Noun", translation: "รายงาน", emoji: "📑" },
+                { word: "Feedback", pos: "Noun", translation: "ผลสะท้อนกลับ, คำแนะนำ", emoji: "💡" },
+                { word: "Achieve", pos: "Verb", translation: "บรรลุผล, ทำสำเร็จ", emoji: "🏆" },
+                { word: "Goal", pos: "Noun", translation: "เป้าหมาย", emoji: "🎯" },
+                { word: "Improve", pos: "Verb", translation: "ปรับปรุง, พัฒนา", emoji: "🚀" },
+                { word: "Productivity", pos: "Noun", translation: "ผลผลิต, ประสิทธิภาพการทำงาน", emoji: "⚡" },
+                { word: "Standard", pos: "Noun", translation: "มาตรฐาน", emoji: "⭐" },
+                { word: "Exceed", pos: "Verb", translation: "เกินกว่า, เหนือกว่า", emoji: "🌟" },
+                { word: "Strength", pos: "Noun", translation: "จุดแข็ง", emoji: "💪" },
+                { word: "Weakness", pos: "Noun", translation: "จุดอ่อน", emoji: "🔍" },
+                { word: "Progress", pos: "Noun", translation: "ความคืบหน้า", emoji: "📈" },
+                { word: "Target", pos: "Noun", translation: "เป้าหมาย", emoji: "🎯" },
+                { word: "Record", pos: "Noun", translation: "บันทึกสถิติ", emoji: "📋" },
+                { word: "Summary", pos: "Noun", translation: "สรุป", emoji: "📝" },
+                { word: "Analyze", pos: "Verb", translation: "วิเคราะห์", emoji: "🔬" },
+                { word: "Measurement", pos: "Noun", translation: "การวัดผล", emoji: "📏" },
+                { word: "Score", pos: "Noun", translation: "คะแนน", emoji: "🏅" },
+                { word: "Result", pos: "Noun", translation: "ผลลัพธ์", emoji: "📊" }
+            ],
+            "Lesson 18": [
+                { word: "Compliance", pos: "Noun", translation: "การปฏิบัติตามกฎระเบียบ", emoji: "⚖️" },
+                { word: "Regulation", pos: "Noun", translation: "กฎข้อบังคับ", emoji: "📜" },
+                { word: "Policy", pos: "Noun", translation: "นโยบาย", emoji: "📄" },
+                { word: "Violation", pos: "Noun", translation: "การฝ่าฝืน, การละเมิด", emoji: "⚠️" },
+                { word: "Internal", pos: "Adjective", translation: "ภายใน", emoji: "🏢" },
+                { word: "Auditor", pos: "Noun", translation: "ผู้ตรวจสอบบัญชี/ระบบ", emoji: "🔍" },
+                { word: "Standard", pos: "Noun", translation: "มาตรฐาน", emoji: "⭐" },
+                { word: "Implement", pos: "Verb", translation: "ดำเนินการ, นำไปปฏิบัติ", emoji: "⚙️" },
+                { word: "Maintain", pos: "Verb", translation: "รักษา, ดูแล", emoji: "🛠️" },
+                { word: "Protect", pos: "Verb", translation: "ปกป้อง, คุ้มครอง", emoji: "🛡️" },
+                { word: "Security", pos: "Noun", translation: "ความปลอดภัย", emoji: "🔒" },
+                { word: "Confidential", pos: "Adjective", translation: "ที่เป็นความลับ", emoji: "🤫" },
+                { word: "Guideline", pos: "Noun", translation: "แนวทางปฏิบัติ", emoji: "📌" },
+                { word: "Obligation", pos: "Noun", translation: "ภาระผูกพัน, หน้าที่", emoji: "📑" },
+                { word: "Inspect", pos: "Verb", translation: "ตรวจสอบ", emoji: "🔎" },
+                { word: "Prevent", pos: "Verb", translation: "ป้องกัน", emoji: "🛑" },
+                { word: "Punishment", pos: "Noun", translation: "การลงโทษ", emoji: "🚨" },
+                { word: "Process", pos: "Noun", translation: "กระบวนการ", emoji: "🔄" },
+                { word: "Official", pos: "Adjective", translation: "อย่างเป็นทางการ", emoji: "🏛️" },
+                { word: "Authorize", pos: "Verb", translation: "มอบอำนาจ, อนุญาต", emoji: "🔑" }
+            ],
+            "Lesson 19": [
+                { word: "Recruit", pos: "Verb", translation: "รับสมัครงาน", emoji: "👥" },
+                { word: "Candidate", pos: "Noun", translation: "ผู้สมัครงาน", emoji: "👤" },
+                { word: "Resume", pos: "Noun", translation: "ประวัติย่อส่วนตัว", emoji: "📄" },
+                { word: "Applicant", pos: "Noun", translation: "ผู้ยื่นใบสมัคร", emoji: "🧑‍💻" },
+                { word: "Hiring", pos: "Noun", translation: "การจ้างงาน", emoji: "🤝" },
+                { word: "Position", pos: "Noun", translation: "ตำแหน่งงาน", emoji: "📌" },
+                { word: "Talent", pos: "Noun", translation: "ความสามารถพิเศษ, คนเก่ง", emoji: "⭐" },
+                { word: "Interview", pos: "Noun", translation: "การสัมภาษณ์", emoji: "💬" },
+                { word: "Qualification", pos: "Noun", translation: "คุณสมบัติ", emoji: "🏆" },
+                { word: "Experience", pos: "Noun", translation: "ประสบการณ์", emoji: "📚" },
+                { word: "Reference", pos: "Noun", translation: "บุคคลอ้างอิง", emoji: "📞" },
+                { word: "Department", pos: "Noun", translation: "แผนก, ฝ่าย", emoji: "🏢" },
+                { word: "Onboarding", pos: "Noun", translation: "การปฐมนิเทศพนักงานใหม่", emoji: "🌟" },
+                { word: "Employment", pos: "Noun", translation: "การจ้างงาน", emoji: "💼" },
+                { word: "Benefit", pos: "Noun", translation: "สวัสดิการ, ผลประโยชน์", emoji: "🎁" },
+                { word: "Salary", pos: "Noun", translation: "เงินเดือน", emoji: "💰" },
+                { word: "Promotion", pos: "Noun", translation: "การเลื่อนตำแหน่ง", emoji: "📈" },
+                { word: "Resign", pos: "Verb", translation: "ลาออก", emoji: "🚪" },
+                { word: "Retire", pos: "Verb", translation: "เกษียณอายุ", emoji: "⏳" },
+                { word: "Staff", pos: "Noun", translation: "พนักงาน", emoji: "🧑‍🤝‍🧑" }
+            ],
+            "Lesson 20": [
+                { word: "Strategy", pos: "Noun", translation: "กลยุทธ์", emoji: "🎯" },
+                { word: "Vision", pos: "Noun", translation: "วิสัยทัศน์", emoji: "🔭" },
+                { word: "Mission", pos: "Noun", translation: "พันธกิจ, ภารกิจ", emoji: "⭐" },
+                { word: "Objective", pos: "Noun", translation: "วัตถุประสงค์", emoji: "📌" },
+                { word: "Planning", pos: "Noun", translation: "การวางแผน", emoji: "📊" },
+                { word: "Execution", pos: "Noun", translation: "การดำเนินการ", emoji: "⚡" },
+                { word: "Future", pos: "Adjective", translation: "อนาคต", emoji: "🚀" },
+                { word: "Expansion", pos: "Noun", translation: "การขยายตัว", emoji: "🌐" },
+                { word: "Innovate", pos: "Verb", translation: "สร้างสรรค์นวัตกรรม", emoji: "💡" },
+                { word: "Sustainable", pos: "Adjective", translation: "ยั่งยืน", emoji: "🌱" },
+                { word: "Competitive", pos: "Adjective", translation: "สามารถแข่งขันได้", emoji: "🏆" },
+                { word: "Market", pos: "Noun", translation: "ตลาด", emoji: "🛒" },
+                { word: "Growth", pos: "Noun", translation: "การเติบโต", emoji: "📈" },
+                { word: "Resource", pos: "Noun", translation: "ทรัพยากร", emoji: "📦" },
+                { word: "Leadership", pos: "Noun", translation: "ภาวะผู้นำ", emoji: "👑" },
+                { word: "Partnership", pos: "Noun", translation: "การเป็นหุ้นส่วน", emoji: "🤝" },
+                { word: "Solution", pos: "Noun", translation: "ทางออก, วิธีแก้ปัญหา", emoji: "🛠️" },
+                { word: "Success", pos: "Noun", translation: "ความสำเร็จ", emoji: "✨" },
+                { word: "Review", pos: "Verb", translation: "ทบทวน", emoji: "🔍" },
+                { word: "Summary", pos: "Noun", translation: "บทสรุป", emoji: "📝" }
+            ]
+        };
+
+        // คลังกิริยา 3 ช่องสำหรับโหมดเสริม
+        const verbGameData = [
+            { v1: "Be (is/am/are)", v2: "Was / Were", v3: "Been", meaning: "เป็น, อยู่, คือ" },
+            { v1: "Begin", v2: "Began", v3: "Begun", meaning: "เริ่มต้น" },
+            { v1: "Break", v2: "Broke", v3: "Broken", meaning: "แตก, หัก" },
+            { v1: "Bring", v2: "Brought", v3: "Brought", meaning: "นำมา, พามา" },
+            { v1: "Build", v2: "Built", v3: "Built", meaning: "สร้าง" },
+            { v1: "Buy", v2: "Bought", v3: "Bought", meaning: "ซื้อ" },
+            { v1: "Choose", v2: "Chose", v3: "Chosen", meaning: "เลือก" },
+            { v1: "Come", v2: "Came", v3: "Come", meaning: "มา" },
+            { v1: "Do", v2: "Did", v3: "Done", meaning: "ทำ" },
+            { v1: "Find", v2: "Found", v3: "Found", meaning: "พบ, หาเจอ" },
+            { v1: "Fly", v2: "Flew", v3: "Flown", meaning: "บิน" },
+            { v1: "Forget", v2: "Forgot", v3: "Forgotten", meaning: "ลืม" },
+            { v1: "Get", v2: "Got", v3: "Got / Gotten", meaning: "ได้รับ" },
+            { v1: "Give", v2: "Gave", v3: "Given", meaning: "ให้" },
+            { v1: "Go", v2: "Went", v3: "Gone", meaning: "ไป" },
+            { v1: "Have", v2: "Had", v3: "Had", meaning: "มี" },
+            { v1: "Know", v2: "Knew", v3: "Known", meaning: "รู้, จัก" },
+            { v1: "Leave", v2: "Left", v3: "Left", meaning: "จากไป, ออกจาก" },
+            { v1: "Make", v2: "Made", v3: "Made", meaning: "ทำ, สร้าง" },
+            { v1: "Meet", v2: "Met", v3: "Met", meaning: "พบ, เจอ" },
+            { v1: "Pay", v2: "Paid", v3: "Paid", meaning: "จ่ายเงิน" },
+            { v1: "Read", v2: "Read", v3: "Read", meaning: "อ่าน" },
+            { v1: "Run", v2: "Ran", v3: "Run", meaning: "วิ่ง" },
+            { v1: "See", v2: "Saw", v3: "Seen", meaning: "เห็น" },
+            { v1: "Sell", v2: "Sold", v3: "Sold", meaning: "ขาย" },
+            { v1: "Send", v2: "Sent", v3: "Sent", meaning: "ส่ง" },
+            { v1: "Speak", v2: "Spoke", v3: "Spoken", meaning: "พูด" },
+            { v1: "Spend", v2: "Spent", v3: "Spent", meaning: "ใช้เวลา/เงิน" },
+            { v1: "Take", v2: "Took", v3: "Taken", meaning: "เอา, พา" },
+            { v1: "Write", v2: "Wrote", v3: "Written", meaning: "เขียน" }
+        ];
+
+        let currentIndex = 0;
+        let activeData = [];
+        let score = 0;
+
+        const cardContentArea = document.getElementById("card-content-area");
+        const vocabDropdownBox = document.getElementById("vocab-dropdown-box");
+        const cardCategory = document.getElementById("card-category");
+        const counter = document.getElementById("counter");
+        const progressBar = document.getElementById("progress-bar");
+        const learningSection = document.getElementById("learning-section");
+        const completeSection = document.getElementById("complete-section");
+        const categorySelect = document.getElementById("category-select");
+        const completeText = document.getElementById("complete-text");
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById("btn-mode-vocab").classList.toggle("active", mode === 'vocab');
+            document.getElementById("btn-mode-verbs").classList.toggle("active", mode === 'verbs');
+
+            if (mode === 'vocab') {
+                vocabDropdownBox.style.display = "block";
+                loadCategoryData();
+            } else {
+                vocabDropdownBox.style.display = "none";
+                activeData = shuffleArray(verbGameData);
+                currentIndex = 0;
+                score = 0;
+            }
+            learningSection.style.display = "block";
+            completeSection.style.display = "none";
+            updateCard();
+        }
+
+        function speakWord(wordText) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(wordText);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function loadCategoryData() {
+            const selectedCategory = categorySelect.value;
+            activeData = shuffleArray(allLessonsData[selectedCategory]);
+            currentIndex = 0;
+            score = 0;
+        }
+
+        function updateCard() {
+            if (currentIndex < activeData.length) {
+                const progress = (currentIndex / activeData.length) * 100;
+                progressBar.style.width = progress + '%';
+                counter.textContent = `${currentIndex + 1} / ${activeData.length}`;
+
+                if (currentMode === 'vocab') {
+                    cardCategory.textContent = categorySelect.options[categorySelect.selectedIndex].text;
+                    const item = activeData[currentIndex];
+                    const correctAnswer = item.translation;
+
+                    // สุ่มตัวเลือกคำแปลผิดมา 3 ข้อจากบทเดียวกันหรือภาพรวม
+                    let pool = allLessonsData[categorySelect.value].filter(v => v.translation !== correctAnswer);
+                    pool = shuffleArray(pool).slice(0, 3);
+                    let options = [correctAnswer, ...pool.map(v => v.translation)];
+                    options = shuffleArray(options);
+
+                    cardContentArea.innerHTML = `
+                        <div class="emoji-icon">${item.emoji}</div>
+                        <div class="word-container">
+                            <div class="word" id="card-word">${item.word}</div>
+                            <button class="speaker-btn" onclick="speakWord('${item.word}')" title="ฟังเสียงอ่าน">🔊</button>
+                        </div>
+                        <div class="pos">${item.pos} — จงเลือกคำแปลที่ถูกต้อง</div>
+                        <div class="options-grid">
+                            ${options.map(opt => `<button class="option-btn" onclick="checkVocabAnswer(this, '${opt.replace(/'/g, "\\'")}', '${correctAnswer.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+                        </div>
+                    `;
+                    setTimeout(() => speakWord(item.word), 200);
+                } else {
+                    cardCategory.textContent = "⚡ เกมกิริยา 3 ช่อง";
+                    const currentVerb = activeData[currentIndex];
+                    const targetForm = Math.random() < 0.5 ? 'v2' : 'v3';
+                    const targetLabel = targetForm === 'v2' ? 'ช่องที่ 2 (Past Tense)' : 'ช่องที่ 3 (Past Participle)';
+                    const correctAnswer = currentVerb[targetForm];
+
+                    let wrongOptions = verbGameData.filter(v => v[targetForm] !== correctAnswer);
+                    wrongOptions = shuffleArray(wrongOptions).slice(0, 3);
+                    let options = [correctAnswer, ...wrongOptions.map(v => v[targetForm])];
+                    options = shuffleArray(options);
+
+                    cardContentArea.innerHTML = `
+                        <div style="font-size: 22px; font-weight: 700; color: #2d3748; margin-bottom: 2px;">${currentVerb.v1}</div>
+                        <div style="font-size: 13px; color: #718096; margin-bottom: 4px;">ความหมาย: ${currentVerb.meaning}</div>
+                        <div class="pos" style="color: #3182ce; margin-bottom: 12px;">หากิริยา ${targetLabel}</div>
+                        <div class="options-grid">
+                            ${options.map(opt => `<button class="option-btn" onclick="checkVerbAnswer(this, '${opt}', '${correctAnswer}')">${opt}</button>`).join('')}
+                        </div>
+                    `;
+                }
+            } else {
+                learningSection.style.display = "none";
+                completeSection.style.display = "flex";
+                completeText.textContent = `ยอดเยี่ยมมาก! คุณเล่นจบรอบแล้ว (ทำคะแนนถูก ${score} จาก ${activeData.length} ข้อ)`;
+            }
+        }
+
+        function checkVocabAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => {
+                    if (b.textContent === correct) b.classList.add('correct');
+                });
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                updateCard();
+            }, 1000);
+        }
+
+        function checkVerbAnswer(btn, selected, correct) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                allBtns.forEach(b => {
+                    if (b.textContent === correct) b.classList.add('correct');
+                });
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                updateCard();
+            }, 1000);
+        }
+
+        function changeCategory() {
+            loadCategoryData();
+            updateCard();
+        }
+
+        function restartSession() {
+            if (currentMode === 'vocab') {
+                loadCategoryData();
+            } else {
+                activeData = shuffleArray(verbGameData);
+                currentIndex = 0;
+                score = 0;
+            }
+            learningSection.style.display = "block";
+            completeSection.style.display = "none";
+            updateCard();
+        }
+
+        loadCategoryData();
+        updateCard();
+    </script>
+
+</body>
+</html>
